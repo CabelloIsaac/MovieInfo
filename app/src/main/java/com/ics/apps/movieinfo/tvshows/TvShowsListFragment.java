@@ -5,6 +5,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,20 +17,29 @@ import android.widget.GridView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.NetworkResponse;
+import com.android.volley.ParseError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HttpHeaderParser;
+import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.ics.apps.movieinfo.DetailActivity;
 import com.ics.apps.movieinfo.R;
 import com.ics.apps.movieinfo.libs.Constants;
 import com.ics.apps.movieinfo.libs.WebServices;
+import com.ics.apps.movieinfo.movies.Movie;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 /**
@@ -85,11 +95,20 @@ public class TvShowsListFragment extends Fragment {
         return view;
     }
 
-
     private void getPopularTvShows() {
+
+        final RequestQueue mRequestQueue;
+        Cache cache = new DiskBasedCache(getContext().getCacheDir(), 1024 * 1024); // 1MB cap
+        Network network = new BasicNetwork(new HurlStack());
+        mRequestQueue = new RequestQueue(cache, network);
+        mRequestQueue.start();
 
         getActivity().setTitle(getString(R.string.tvshows) + " - " + getString(R.string.popular));
         tvShowArrayList.clear();
+
+        dialog.setMessage(getResources().getString(R.string.loading));
+        dialog.show();
+
         StringRequest stringRequest = new StringRequest(WebServices.POPULAR_TV_SHOWS, new Response.Listener<String>() {
 
             @Override
@@ -116,30 +135,97 @@ public class TvShowsListFragment extends Fragment {
                     gridview.setAdapter(tvShowsAdapter);
                     tvShowsAdapter.notifyDataSetChanged();
 
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
 
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
                 }
+
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Toast.makeText(getContext(), getString(R.string.no_response), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getResources().getString(R.string.no_response), Toast.LENGTH_SHORT).show();
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
 
             }
-        });
+        }) {
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new String(jsonString), cacheEntry);
+                } catch (UnsupportedEncodingException e) {
+                    return Response.error(new ParseError(e));
+                }
+            }
 
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        requestQueue.add(stringRequest);
+            @Override
+            protected void deliverResponse(String response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+        mRequestQueue.add(stringRequest);
 
     }
 
     private void getTopRatedTvShows() {
 
+        final RequestQueue mRequestQueue;
+        Cache cache = new DiskBasedCache(getContext().getCacheDir(), 1024 * 1024); // 1MB cap
+        Network network = new BasicNetwork(new HurlStack());
+        mRequestQueue = new RequestQueue(cache, network);
+        mRequestQueue.start();
+
         getActivity().setTitle(getString(R.string.tvshows) + " - " + getString(R.string.top_rated));
         tvShowArrayList.clear();
+
+        dialog.setMessage(getResources().getString(R.string.loading));
+        dialog.show();
+
         StringRequest stringRequest = new StringRequest(WebServices.TOP_RATED_TV_SHOWS, new Response.Listener<String>() {
 
             @Override
@@ -166,22 +252,197 @@ public class TvShowsListFragment extends Fragment {
                     gridview.setAdapter(tvShowsAdapter);
                     tvShowsAdapter.notifyDataSetChanged();
 
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+
                 } catch (JSONException e) {
                     e.printStackTrace();
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
                 }
+
             }
 
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
 
-                Toast.makeText(getContext(), getString(R.string.no_response), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), getResources().getString(R.string.no_response), Toast.LENGTH_SHORT).show();
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
 
             }
-        });
+        }) {
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new String(jsonString), cacheEntry);
+                } catch (UnsupportedEncodingException e) {
+                    return Response.error(new ParseError(e));
+                }
+            }
 
-        RequestQueue requestQueue = Volley.newRequestQueue(getContext());
-        requestQueue.add(stringRequest);
+            @Override
+            protected void deliverResponse(String response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+        mRequestQueue.add(stringRequest);
+
+    }
+
+    private void search(String query) {
+
+        final RequestQueue mRequestQueue;
+        Cache cache = new DiskBasedCache(getContext().getCacheDir(), 1024 * 1024); // 1MB cap
+        Network network = new BasicNetwork(new HurlStack());
+        mRequestQueue = new RequestQueue(cache, network);
+        mRequestQueue.start();
+
+        getActivity().setTitle(getString(R.string.tvshows) + " - " + query);
+        tvShowArrayList.clear();
+
+        dialog.setMessage(getResources().getString(R.string.loading));
+        dialog.show();
+
+        StringRequest stringRequest = new StringRequest(WebServices.SEARCH_TV_A + query + WebServices.SEARCH_TV_B, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+
+                try {
+
+                    JSONObject jsonObject = new JSONObject(response);
+
+                    JSONArray resultsArray = jsonObject.getJSONArray(Constants.RESULTS);
+
+                    for (int i = 0; i < resultsArray.length(); i++) {
+
+                        JSONObject jsonObjectResults = resultsArray.getJSONObject(i);
+
+                        String id = jsonObjectResults.getString(Constants.ID);
+                        String title = jsonObjectResults.getString(Constants.NAME);
+                        String posterPath = jsonObjectResults.getString(Constants.POSTER_PATH);
+
+                        tvShowArrayList.add(new TvShow(id, title, posterPath));
+
+                    }
+
+                    gridview.setAdapter(tvShowsAdapter);
+                    tvShowsAdapter.notifyDataSetChanged();
+
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    if (dialog.isShowing()) {
+                        dialog.dismiss();
+                    }
+                }
+
+            }
+
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(getContext(), getResources().getString(R.string.no_response), Toast.LENGTH_SHORT).show();
+                if (dialog.isShowing()) {
+                    dialog.dismiss();
+                }
+
+            }
+        }) {
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                try {
+                    Cache.Entry cacheEntry = HttpHeaderParser.parseCacheHeaders(response);
+                    if (cacheEntry == null) {
+                        cacheEntry = new Cache.Entry();
+                    }
+                    final long cacheHitButRefreshed = 3 * 60 * 1000; // in 3 minutes cache will be hit, but also refreshed on background
+                    final long cacheExpired = 24 * 60 * 60 * 1000; // in 24 hours this cache entry expires completely
+                    long now = System.currentTimeMillis();
+                    final long softExpire = now + cacheHitButRefreshed;
+                    final long ttl = now + cacheExpired;
+                    cacheEntry.data = response.data;
+                    cacheEntry.softTtl = softExpire;
+                    cacheEntry.ttl = ttl;
+                    String headerValue;
+                    headerValue = response.headers.get("Date");
+                    if (headerValue != null) {
+                        cacheEntry.serverDate = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    headerValue = response.headers.get("Last-Modified");
+                    if (headerValue != null) {
+                        cacheEntry.lastModified = HttpHeaderParser.parseDateAsEpoch(headerValue);
+                    }
+                    cacheEntry.responseHeaders = response.headers;
+                    final String jsonString = new String(response.data,
+                            HttpHeaderParser.parseCharset(response.headers));
+                    return Response.success(new String(jsonString), cacheEntry);
+                } catch (UnsupportedEncodingException e) {
+                    return Response.error(new ParseError(e));
+                }
+            }
+
+            @Override
+            protected void deliverResponse(String response) {
+                super.deliverResponse(response);
+            }
+
+            @Override
+            public void deliverError(VolleyError error) {
+                super.deliverError(error);
+            }
+
+            @Override
+            protected VolleyError parseNetworkError(VolleyError volleyError) {
+                return super.parseNetworkError(volleyError);
+            }
+        };
+
+        mRequestQueue.add(stringRequest);
 
     }
 
@@ -210,7 +471,23 @@ public class TvShowsListFragment extends Fragment {
                 return false;
             }
         });
+        MenuItem mSearchMenuItem = menu.findItem(R.id.search_canciones);
+        SearchView searchView = (SearchView) mSearchMenuItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //if (newText.equals(""))
+                //search(newText);
+                return true;
+            }
 
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                search(query);
+                return true;
+
+            }
+        });
         upcoming.setVisible(false);
 
     }

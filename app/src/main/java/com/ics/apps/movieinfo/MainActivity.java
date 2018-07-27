@@ -1,20 +1,18 @@
 package com.ics.apps.movieinfo;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 
+import com.ics.apps.movieinfo.genres.GenresActivity;
+import com.ics.apps.movieinfo.libs.Constants;
 import com.ics.apps.movieinfo.movies.MoviesListFragment;
 import com.ics.apps.movieinfo.tvshows.TvShowsListFragment;
 
@@ -54,16 +52,26 @@ public class MainActivity extends AppCompatActivity
     public void switchToFragment(int fragment) {
 
         FragmentManager manager = getSupportFragmentManager();
+        Intent intent;
 
         switch (fragment) {
             case 0:
-
                 manager.beginTransaction().replace(R.id.content_main, new MoviesListFragment()).commit();
                 setTitle(getResources().getString(R.string.movies));
                 break;
             case 1:
+                intent = new Intent(MainActivity.this, GenresActivity.class);
+                intent.putExtra(Constants.TYPE, Constants.MOVIE);
+                startActivity(intent);
+                break;
+            case 2:
                 manager.beginTransaction().replace(R.id.content_main, new TvShowsListFragment()).commit();
                 setTitle(getResources().getString(R.string.tvshows));
+                break;
+            case 3:
+                intent = new Intent(MainActivity.this, GenresActivity.class);
+                intent.putExtra(Constants.TYPE, Constants.TV_SHOW);
+                startActivity(intent);
                 break;
         }
 
@@ -77,8 +85,12 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.movies) {
             switchToFragment(0);
-        } else if (id == R.id.tvshows) {
+        } else if (id == R.id.moviesGenres) {
             switchToFragment(1);
+        } else if (id == R.id.tvshows) {
+            switchToFragment(2);
+        } else if (id == R.id.tvshowsGenres) {
+            switchToFragment(3);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

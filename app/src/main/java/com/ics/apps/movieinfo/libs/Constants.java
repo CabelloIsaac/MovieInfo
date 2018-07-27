@@ -18,9 +18,9 @@ public class Constants {
 
     public static final String NAME = "name";
 
-    public static final String TYPE = "name";
-    public static final int MOVIE = 0;
-    public static final int TV_SHOW = 1;
+    public static final String TYPE = "type";
+    public static final String MOVIE = "0";
+    public static final String TV_SHOW = "1";
 
-
+    public static final String GENRES = "genres";
 }

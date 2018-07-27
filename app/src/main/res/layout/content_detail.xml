@@ -8,12 +8,27 @@
     tools:context="com.ics.apps.movieinfo.DetailActivity"
     tools:showIn="@layout/activity_detail">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:textSize="18sp"
-        android:layout_margin="@dimen/text_margin"
-        android:id="@+id/tvOverview" />
+        android:orientation="vertical">
+
+        <fragment
+            android:name="com.google.android.youtube.player.YouTubePlayerSupportFragment"
+            android:id="@+id/youtube_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:layout_margin="@dimen/text_margin"
+            android:id="@+id/tvOverview" />
+
+    </LinearLayout>
+
+
 
 </android.support.v4.widget.NestedScrollView>

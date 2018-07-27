@@ -1,19 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/search_canciones"
+        android:title="@string/search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always"/>
+
     <item
-        android:id="@+id/popular"
-        android:orderInCategory="100"
-        android:title="@string/popular"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/top_rated"
-        android:orderInCategory="100"
-        android:title="@string/top_rated"
-        app:showAsAction="never" />
-    <item
-        android:id="@+id/upcoming"
-        android:orderInCategory="100"
-        android:title="@string/upcoming"
-        app:showAsAction="never" />
+        android:title="@string/sort_by"
+        android:icon="@drawable/sort"
+        app:showAsAction="ifRoom">
+        <menu>
+            <item
+                android:id="@+id/popular"
+                android:orderInCategory="100"
+                android:title="@string/popular"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/top_rated"
+                android:orderInCategory="100"
+                android:title="@string/top_rated"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/upcoming"
+                android:orderInCategory="100"
+                android:title="@string/upcoming"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+
 </menu>

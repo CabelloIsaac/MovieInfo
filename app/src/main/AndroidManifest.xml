@@ -23,8 +23,10 @@
         </activity>
         <activity
             android:name=".DetailActivity"
-            android:label="@string/title_activity_detail"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:label=""
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".genres.GenresActivity" />
+        <activity android:name=".genres.GenresResultsActivity" />
     </application>
 
 </manifest>
