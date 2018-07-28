@@ -11,7 +11,84 @@ Registrarse en TheMovieDB para obtener una API Key para su proyecto.
 </br>Todas las consultas que se realicen y se muestren en pantalla son almacenadas en Caché para su uso sin conexión a Internet. El caché permanecerá guardado durante 24 horas.
 </br>Requiere Android 4.1 o superior.
 
-# Uso
+# Capas de la aplicación
+
+### Capa de presentación
+Esta capa contiene todo lo que verá el usuario (formularios, vistas, etc).</br>
+Archivos XML contenidos en MovieInfo/app/src/main/res/layout</br>
+activity_main.xml</br>
+activity_tv_show_genres.xml</br>
+activity_tv_shows_genres_results.xml</br>
+content_detail.xml</br>
+fragment_movies_list.xml</br>
+fragment_tv_shows_list.xml
+
+### Capa de negociación
+Esta capa toma los datos del usuario y genera las consultas con el servidor.</br></br>
+Clases:</br>
+genres.GenresActivity.java</br>
+genres.GenresResultsActivity.java</br>
+movies.MoviesListFragment.java</br>
+tvshow.TvShowsListFragment.java</br>
+DetailActivity</br>
+
+### Capa de Datos
+Esta capa posee las direcciones y datos que la aplicación va a manejar y mostrar al usuario.</br></br>
+libs.WebServices.java
+https://developers.themoviedb.org/3/
+
+# Clases
+
+### Genre
+Estructura de datos de las categorías de películas/series
+
+### GenreAdapter
+Conecta los datos de una categoría con la pantalla visual al usuario
+
+### GenresActivity
+Muestra la lista de categorías de las películas/series
+
+### GenresResultsActivity
+Muestra la lista de películas/series de una categoría seleccionada
+
+### Constants
+Aquí se declaran las constantes globales a usar en el proyecto
+
+### SquareImageView
+Librería para mostrar imágenes con relación de aspecto 1:1
+
+### WebServices
+Aquí se declaran las constantes que poseen las direcciones URL para conectarse a la API de TheMovieDB
+
+### Movie
+Estructura de datos de las categorías de películas
+
+### MoviesAdapter
+Conecta los datos de una película con la pantalla visual al usuario
+
+### MoviesListFragment
+Muestra la lista de las películas. Permite ordenarlas por Popular, Top Rated y Upcoming
+
+### TvShow
+Estructura de datos de las categorías de series
+
+### tvShowsAdapter
+Conecta los datos de una serie con la pantalla visual al usuario
+
+### TvShowsListFragment
+Muestra la lista de las series. Permite ordenarlas por Popular y Top Rated
+
+### DetailActivity
+Muestra una imagen de portada, la sinopsis y un tráiler de una película o serie seleccionada
+
+### MainActivity
+Ventana principal de la aplicación
+
+# Principio de responsabilidad única
+Consiste, en mi opinión, en que cada clase debe de encargarse solo de una responsailidad. Es conveniente repartir las tareas en diferentes clases para que los cambios futuros al sistema sean más fáciles de aplicar. Si una clase posee muchas responsabilidades, los cambios a la misma afectarán de forma drástica la aplicación pudiendo ocasionar fallas que retrasen la entrega del proyecto.
+
+# Código limpio
+Un buen código debe ser comprensible, bien estructurado y bien documentado. Se deben de seguir las normas de nomenclaturas del lenguaje en el que se trabaja para que cualquier programador pueda leerlo sin problemas.
 
 #### Ventana principal
 
