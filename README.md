@@ -31,3 +31,9 @@ Se incluye una barra de búsqueda para filtrar series de televisión según su n
 ##### Detalles
 
 Al pulsar sobre una película o serie de televisión se muestra la sinopsis de la misma y un tráiler oficial de YouTube. <b>Se requiere la aplicación oficial de YouTube instalada en el dispositivo</b>
+
+# Créditos
+
+Desarrollado por Isaac Cabello
+</br>cabelloisaac97@gmail.com
+</br>cabelloisaac.com.ve
