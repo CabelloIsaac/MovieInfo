@@ -9,6 +9,7 @@ Registrarse en TheMovieDB para obtener una API Key para su proyecto.
 </br>Las consultas proporcionadas por la API están en formato JSON y son procesadas con la librería Volley
 </br>Las imágenes son procesadas con la librería Picasso.
 </br>Todas las consultas que se realicen y se muestren en pantalla son almacenadas en Caché para su uso sin conexión a Internet. El caché permanecerá guardado durante 24 horas.
+</br>Requiere Android 4.1 o superior.
 
 # Uso
 
@@ -30,8 +31,3 @@ Se incluye una barra de búsqueda para filtrar series de televisión según su n
 ##### Detalles
 
 Al pulsar sobre una película o serie de televisión se muestra la sinopsis de la misma y un tráiler oficial de YouTube. <b>Se requiere la aplicación oficial de YouTube instalada en el dispositivo</b>
-
-Requerimientos:
-
-- Internet
-- Sistema Operativo Android 4.1 o superior.
